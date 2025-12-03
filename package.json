@@ -47,13 +47,7 @@
           "default": "",
           "description": "Absolute path to a custom sound file for coin rewards. Leave empty to use the default sound."
         },
-        "dopamineDev.soundVolume": {
-          "type": "number",
-          "default": 0.5,
-          "minimum": 0,
-          "maximum": 1,
-          "description": "Sound playback volume (0.0–1.0). macOS uses system `afplay` volume; other platforms may ignore this."
-        },
+        
         "dopamineDev.ignoreExtensions": {
           "type": "array",
           "default": [
@@ -197,5 +191,6 @@
     "@vscode/vsce": "^3.1.0"
   },
   "dependencies": {
+    "sound-play": "^1.1.0"
   }
 }

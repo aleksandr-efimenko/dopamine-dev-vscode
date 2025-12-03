@@ -5,7 +5,13 @@ import { RewardManager } from './rewardManager';
 import { DiffTracker, DiffStats, ThresholdConfig } from './diffTracker';
 import { PerformanceTracker, PerformanceStats } from './performanceTracker';
 
-// Sound playback handled via Webview HTML5 audio for cross-platform volume control.
+// Safe import for sound-play
+let sound: any;
+try {
+    sound = require('sound-play');
+} catch (e) {
+    console.warn('sound-play not found');
+}
 
 // Constants
 const STATUS_BAR_PRIORITY = 100;
@@ -262,9 +268,6 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
 function playSound(context: vscode.ExtensionContext, customPath: string | undefined, defaultFileName: string, enabled: boolean) {
     if (!enabled) { return; }
 
-    const config = vscode.workspace.getConfiguration('dopamineDev');
-    const volume = Math.min(1, Math.max(0, config.get<number>('soundVolume', 0.5)));
-
     let targetPath: string;
     if (customPath && customPath.trim().length > 0) {
         targetPath = customPath;
@@ -272,40 +275,13 @@ function playSound(context: vscode.ExtensionContext, customPath: string | undefi
         targetPath = path.join(context.extensionPath, 'media', defaultFileName);
     }
 
-    playSoundViaWebview(context, targetPath, volume);
+    if (sound) {
+        try { sound.play(targetPath); } catch (e) {
+            console.error(`Failed to play sound: ${targetPath}`, e);
+        }
+    }
 }
 
-function playSoundViaWebview(context: vscode.ExtensionContext, filePath: string, volume: number) {
-        const panel = vscode.window.createWebviewPanel(
-                'dopamineSound',
-                'Playing Sound',
-                { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true } as any,
-                { enableScripts: true }
-        );
-
-        const uri = vscode.Uri.file(filePath);
-        const webviewUri = panel.webview.asWebviewUri(uri);
-        const vol = Math.min(1, Math.max(0, volume));
-
-        panel.webview.html = `<!DOCTYPE html>
-        <html><head><meta charset="UTF-8"></head>
-        <body style="background:#1e1e1e;color:#ccc;font-family:system-ui;">
-            <audio id="a" src="${webviewUri}" autoplay></audio>
-            <script>
-                const a = document.getElementById('a');
-                a.volume = ${vol};
-                a.addEventListener('ended', () => {
-                    const vscode = acquireVsCodeApi();
-                    setTimeout(() => { vscode.postMessage({ cmd: 'close' }); }, 50);
-                });
-            </script>
-        </body></html>`;
-
-        panel.webview.onDidReceiveMessage((msg) => {
-                if (msg && msg.cmd === 'close') {
-                        panel.dispose();
-                }
-        });
-}
+// (webview playback removed)
 
 export function deactivate() { }
