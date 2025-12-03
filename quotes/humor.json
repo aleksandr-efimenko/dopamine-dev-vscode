@@ -1,0 +1,182 @@
+[
+  {
+    "text": "Programming today is a race between software engineers striving to build bigger and better idiot-proof programs, and the Universe trying to produce bigger and better idiots. So far, the Universe is winning.",
+    "author": "Rick Cook",
+    "category": "humor"
+  },
+  {
+    "text": "I don't care if it works on your machine! We are not shipping your machine!",
+    "author": "Vidiu Platon",
+    "category": "humor"
+  },
+  {
+    "text": "Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.",
+    "author": "John Woods",
+    "category": "humor"
+  },
+  {
+    "text": "Without requirements or design, programming is the art of adding bugs to an empty text file.",
+    "author": "Louis Srygley",
+    "category": "humor"
+  },
+  {
+    "text": "Copy-and-Paste was programmed by programmers for programmers actually.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Algorithm: Word used by programmers when they don't want to explain what they did.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Hardware: The parts of a computer system that can be kicked.",
+    "author": "Jeff Pesis",
+    "category": "humor"
+  },
+  {
+    "text": "The trouble with programmers is that you can never tell what a programmer is doing until it’s too late.",
+    "author": "Seymour Cray",
+    "category": "humor"
+  },
+  {
+    "text": "Ruby is rubbish! PHP is phpantastic!",
+    "author": "Nikita Popov",
+    "category": "humor"
+  },
+  {
+    "text": "Coding is the easy part. Naming variables is the hard part.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "If at first you don't succeed, call it version 1.0.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Programmer: A machine that turns coffee into code.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Computers are fast; programmers keep it slow.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "When I wrote this code, only God and I knew how it worked. Now, only God knows!",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "A SQL query walks into a bar, walks up to two tables and asks, 'Can I join you?'",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "How many programmers does it take to change a light bulb? None. It's a hardware problem.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why do programmers prefer dark mode? Because light attracts bugs.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Things aren't always #000000 and #FFFFFF",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I simply wait for the cat to walk over the keyboard.",
+    "author": "Charles Bukowski (Attributed)",
+    "category": "humor"
+  },
+  {
+    "text": "My code’s so clean, you could eat off it.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "While there's code, there's a bug.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Home is where the wifi connects automatically.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "There is no place like 127.0.0.1",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Coincidence is God's way of remaining anonymous.",
+    "author": "Albert Einstein",
+    "category": "humor"
+  },
+  {
+    "text": "Common sense is the collection of prejudices acquired by age eighteen.",
+    "author": "Albert Einstein",
+    "category": "humor"
+  },
+  {
+    "text": "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.",
+    "author": "Albert Einstein",
+    "category": "humor"
+  },
+  {
+    "text": "A computer once beat me at chess, but it was no match for me at kick boxing.",
+    "author": "Emo Philips",
+    "category": "humor"
+  },
+  {
+    "text": "To err is human, but to really foul things up you need a computer.",
+    "author": "Paul R. Ehrlich",
+    "category": "humor"
+  },
+  {
+    "text": "Computers are useless. They can only give you answers.",
+    "author": "Pablo Picasso",
+    "category": "humor"
+  },
+  {
+    "text": "Java is to JavaScript as ham is to hamster.",
+    "author": "Jeremy Keith",
+    "category": "humor"
+  },
+  {
+    "text": "The C Programming Language: A language which combines the flexibility of assembly language with the power of assembly language.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "One man’s constant is another man’s variable.",
+    "author": "Alan Perlis",
+    "category": "humor"
+  },
+  {
+    "text": "Syntactic sugar causes cancer of the semi-colons.",
+    "author": "Alan Perlis",
+    "category": "humor"
+  },
+  {
+    "text": "Programming can be fun, so can cryptography; however they should not be combined.",
+    "author": "Kreitzberg and Shneiderman",
+    "category": "humor"
+  },
+  {
+    "text": "It is easier to change the specification to fit the program than it is to agree on one.",
+    "author": "Alan Perlis",
+    "category": "humor"
+  },
+  {
+    "text": "Software is a gas; it expands to fill its container.",
+    "author": "Nathan Myhrvold",
+    "category": "humor"
+  }
+]

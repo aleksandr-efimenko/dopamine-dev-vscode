@@ -1,0 +1,185 @@
+{
+  "name": "dopamine-dev",
+  "displayName": "Dopamine Dev",
+  "description": "Gamify your coding experience with variable rewards, flow state tracking, and daily streaks.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aleksandrefimenko/dopamine-dev.git"
+  },
+  "engines": {
+    "vscode": "^1.106.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dopamine-dev.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "dopamine-dev.checkBalance",
+        "title": "Check Dopamine Balance"
+      }
+    ],
+    "configuration": {
+      "title": "Dopamine Dev",
+      "properties": {
+        "dopamineDev.enableSound": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable sound effects."
+        },
+        "dopamineDev.sounds.win": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to a custom sound file for jackpots. Leave empty to use the default sound."
+        },
+        "dopamineDev.sounds.coin": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to a custom sound file for coin rewards. Leave empty to use the default sound."
+        },
+        "dopamineDev.ignoreExtensions": {
+          "type": "array",
+          "default": [],
+          "description": "List of file extensions to ignore (e.g., ['.md', '.txt']).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dopamineDev.bulkThreshold": {
+            "type": "number",
+            "default": 50,
+            "description": "Character limit for a single change to be considered 'typed'. Changes above this are considered 'pasted' or 'generated'."
+        },
+        "dopamineDev.thresholds.minChars": {
+          "type": "number",
+          "default": 20,
+          "description": "Minimum total characters added to trigger a reward."
+        },
+        "dopamineDev.thresholds.medium.lines": {
+          "type": "number",
+          "default": 5,
+          "description": "Minimum lines changed for Medium magnitude."
+        },
+        "dopamineDev.thresholds.medium.chars": {
+          "type": "number",
+          "default": 100,
+          "description": "Minimum characters changed for Medium magnitude."
+        },
+        "dopamineDev.thresholds.large.lines": {
+          "type": "number",
+          "default": 20,
+          "description": "Minimum lines changed for Large magnitude."
+        },
+        "dopamineDev.thresholds.large.chars": {
+          "type": "number",
+          "default": 500,
+          "description": "Minimum characters changed for Large magnitude."
+        },
+        "dopamineDev.thresholds.epic.lines": {
+          "type": "number",
+          "default": 50,
+          "description": "Minimum lines changed for Epic magnitude."
+        },
+        "dopamineDev.thresholds.epic.chars": {
+          "type": "number",
+          "default": 2000,
+          "description": "Minimum characters changed for Epic magnitude."
+        },
+        "dopamineDev.winOdds": {
+          "type": "number",
+          "default": 0.1,
+          "description": "Probability of winning a jackpot (0.0 - 1.0)."
+        },
+        "dopamineDev.rewards": {
+          "type": "array",
+          "default": [
+            {
+              "type": "image",
+              "content": "kitten",
+              "label": "Cute Kitten"
+            },
+            {
+              "type": "url",
+              "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "label": "Mystery Reward"
+            },
+            {
+              "type": "quote",
+              "content": "programming",
+              "label": "Tech Wisdom"
+            },
+            {
+              "type": "message",
+              "content": "Take a deep breath and stretch!",
+              "label": "Wellness Check"
+            }
+          ],
+          "description": "List of rewards. Types: 'url' (opens browser), 'message' (info box), 'image' (opens tab with image/keyword).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "url",
+                  "message",
+                  "image",
+                  "quote"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "URL or Message text"
+              },
+              "label": {
+                "type": "string",
+                "description": "Button label for the reward"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1,
+                "description": "Relative weight for this specific reward item (0 to disable)."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run compile -- --sourcemap --watch",
+    "package": "npm run compile -- --minify --sourcemap",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "vsix": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.106.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.0",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "sound-play": "^1.1.0"
+  }
+}
