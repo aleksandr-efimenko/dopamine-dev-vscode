@@ -17,6 +17,7 @@
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
+  "icon": "media/dopamine-dev-logo.png",
   "contributes": {
     "commands": [
       {
