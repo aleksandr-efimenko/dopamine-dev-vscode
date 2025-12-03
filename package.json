@@ -35,6 +35,10 @@
       {
         "command": "dopamine-dev.showHistory",
         "title": "Show Dopamine History"
+      },
+      {
+        "command": "dopamine-dev.showAnalytics",
+        "title": "Show Dopamine Analytics"
       }
     ],
     "configuration": {

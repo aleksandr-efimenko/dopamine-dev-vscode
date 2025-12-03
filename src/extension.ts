@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { Wallet } from './wallet';
-import { Transaction } from './transactionLogger';
+import { Transaction, DailyStat } from './transactionLogger';
 import { RewardManager } from './rewardManager';
 import { DiffTracker, DiffStats, ThresholdConfig } from './diffTracker';
 import { PerformanceTracker, PerformanceStats } from './performanceTracker';
@@ -120,6 +120,20 @@ export function activate(context: vscode.ExtensionContext) {
         if (selection && selection.label.includes("View Full Log File")) {
             vscode.commands.executeCommand('dopamine-dev.showTransactionLog');
         }
+    }));
+
+    // Command: Show Analytics
+    context.subscriptions.push(vscode.commands.registerCommand('dopamine-dev.showAnalytics', async () => {
+        const stats = await wallet.getDailyStats(7);
+
+        const panel = vscode.window.createWebviewPanel(
+            'dopamineAnalytics',
+            'Dopamine Analytics',
+            vscode.ViewColumn.One,
+            { enableScripts: true }
+        );
+
+        panel.webview.html = getAnalyticsWebviewContent(stats);
     }));
 
     // Event: On Change (Track Diff & Performance)
@@ -335,6 +349,126 @@ function playSound(context: vscode.ExtensionContext, customPath: string | undefi
             console.error(`Failed to play sound: ${targetPath}`, e);
         }
     }
+}
+
+function getAnalyticsWebviewContent(stats: DailyStat[]) {
+    const maxVal = Math.max(...stats.map(s => Math.max(s.earned, s.spent)), 10); // Min max is 10 to avoid div/0
+
+    const bars = stats.map(s => {
+        const earnedHeight = (s.earned / maxVal) * 100;
+        const spentHeight = (s.spent / maxVal) * 100;
+        const dateLabel = new Date(s.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+        
+        return `
+            <div class="day-group">
+                <div class="bars">
+                    <div class="bar earned" style="height: ${earnedHeight}%;" title="Earned: ${s.earned}"></div>
+                    <div class="bar spent" style="height: ${spentHeight}%;" title="Spent: ${s.spent}"></div>
+                </div>
+                <div class="label">${dateLabel}</div>
+            </div>
+        `;
+    }).join('');
+
+    return `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dopamine Analytics</title>
+        <style>
+            body {
+                background-color: var(--vscode-editor-background);
+                color: var(--vscode-editor-foreground);
+                font-family: var(--vscode-font-family);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            h1 { color: var(--vscode-textLink-foreground); margin-bottom: 40px; }
+            .chart-container {
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                gap: 15px;
+                height: 300px;
+                width: 100%;
+                max-width: 800px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--vscode-widget-border);
+            }
+            .day-group {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                height: 100%;
+                justify-content: flex-end;
+                flex: 1;
+            }
+            .bars {
+                display: flex;
+                align-items: flex-end;
+                gap: 4px;
+                height: 100%;
+                width: 100%;
+                justify-content: center;
+            }
+            .bar {
+                width: 15px;
+                border-radius: 3px 3px 0 0;
+                transition: height 0.5s ease;
+                min-height: 1px;
+            }
+            .bar.earned {
+                background-color: var(--vscode-testing-iconPassed);
+                opacity: 0.8;
+            }
+            .bar.earned:hover { opacity: 1; }
+            .bar.spent {
+                background-color: var(--vscode-testing-iconFailed);
+                opacity: 0.8;
+            }
+            .bar.spent:hover { opacity: 1; }
+            .label {
+                margin-top: 10px;
+                font-size: 12px;
+                color: var(--vscode-descriptionForeground);
+                text-align: center;
+            }
+            .legend {
+                display: flex;
+                gap: 20px;
+                margin-top: 20px;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 14px;
+            }
+            .dot { width: 10px; height: 10px; border-radius: 50%; }
+        </style>
+    </head>
+    <body>
+        <h1>Coin Activity (Last 7 Days)</h1>
+        
+        <div class="chart-container">
+            ${bars}
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="dot" style="background-color: var(--vscode-testing-iconPassed);"></div>
+                <span>Earned</span>
+            </div>
+            <div class="legend-item">
+                <div class="dot" style="background-color: var(--vscode-testing-iconFailed);"></div>
+                <span>Spent</span>
+            </div>
+        </div>
+    </body>
+    </html>`;
 }
 
 // (webview playback removed)

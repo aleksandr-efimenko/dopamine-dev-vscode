@@ -10,40 +10,80 @@ export interface Transaction {
     reason: string;
 }
 
+export interface DailyStat {
+    date: string;
+    earned: number;
+    spent: number;
+}
+
 export class TransactionLogger {
     private logPath: string;
+    
+    // ... constructor and other methods
 
-    constructor(context: vscode.ExtensionContext) {
-        // Ensure global storage directory exists
-        const storagePath = context.globalStorageUri.fsPath;
-        if (!fs.existsSync(storagePath)) {
-            try {
-                fs.mkdirSync(storagePath, { recursive: true });
-            } catch (e) {
-                console.error('Failed to create global storage directory', e);
-            }
+    public async getDailyStats(days: number = 7): Promise<DailyStat[]> {
+        if (!fs.existsSync(this.logPath)) {
+            return [];
         }
-        this.logPath = path.join(storagePath, 'transactions.jsonl');
-    }
 
-    public log(type: 'earn' | 'spend' | 'reset', amount: number, balanceAfter: number, reason: string) {
-        const transaction: Transaction = {
-            timestamp: new Date().toISOString(),
-            type,
-            amount,
-            balanceAfter,
-            reason
-        };
-        
-        try {
-            fs.appendFileSync(this.logPath, JSON.stringify(transaction) + '\n');
-        } catch (err) {
-            console.error('Failed to write transaction log', err);
-        }
-    }
+        return new Promise((resolve, reject) => {
+            fs.readFile(this.logPath, 'utf8', (err, data) => {
+                if (err) {
+                    return reject(err);
+                }
 
-    public getLogPath(): string {
-        return this.logPath;
+                const lines = data.trim().split('\n');
+                const statsMap = new Map<string, { earned: number; spent: number }>();
+
+                const now = new Date();
+                const startDate = new Date();
+                startDate.setDate(now.getDate() - days + 1);
+                startDate.setHours(0, 0, 0, 0);
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const t: Transaction = JSON.parse(line);
+                        const tDate = new Date(t.timestamp);
+                        
+                        // Filter by date range
+                        if (tDate < startDate) continue;
+
+                        const dateKey = tDate.toISOString().split('T')[0]; // YYYY-MM-DD
+
+                        if (!statsMap.has(dateKey)) {
+                            statsMap.set(dateKey, { earned: 0, spent: 0 });
+                        }
+
+                        const entry = statsMap.get(dateKey)!;
+                        if (t.type === 'earn') {
+                            entry.earned += t.amount;
+                        } else if (t.type === 'spend') {
+                            entry.spent += t.amount;
+                        }
+                    } catch (e) {
+                        // Ignore malformed
+                    }
+                }
+
+                // Fill in missing days
+                const result: DailyStat[] = [];
+                for (let i = 0; i < days; i++) {
+                    const d = new Date(startDate);
+                    d.setDate(startDate.getDate() + i);
+                    const dateKey = d.toISOString().split('T')[0];
+                    
+                    const entry = statsMap.get(dateKey) || { earned: 0, spent: 0 };
+                    result.push({
+                        date: dateKey,
+                        earned: entry.earned,
+                        spent: entry.spent
+                    });
+                }
+
+                resolve(result);
+            });
+        });
     }
 
     public async getRecentTransactions(limit: number = 50): Promise<Transaction[]> {

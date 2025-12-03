@@ -59,4 +59,8 @@ export class Wallet {
     public async getRecentTransactions(limit: number = 50) {
         return this.logger.getRecentTransactions(limit);
     }
+
+    public async getDailyStats(days: number = 7) {
+        return this.logger.getDailyStats(days);
+    }
 }
