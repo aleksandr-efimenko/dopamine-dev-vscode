@@ -39,7 +39,8 @@ const WPM_THRESHOLD_HIGH = 80;
 const WPM_THRESHOLD_LOW = 40;
 const QUALITY_MULTIPLIER_FIX = 2.0;
 const QUALITY_MULTIPLIER_CLEAN = 1.5;
-const QUALITY_MULTIPLIER_BUGGY = 0.5;
+const QUALITY_MULTIPLIER_BUGGY = 0.0;
+const QUALITY_MULTIPLIER_WITH_ERRORS = 0.5;
 const JACKPOT_MULTIPLIER = 10;
 const FINAL_MESSAGE_TIMEOUT_MS = 4000;
 
@@ -283,7 +284,11 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
     } else if (perfStats.errorsFixed < 0) {
         // Introduced errors
         qualityMultiplier = QUALITY_MULTIPLIER_BUGGY;
-        bonuses.push("Buggy");
+        bonuses.push("Bugs Added");
+    } else {
+        // errorsFixed === 0, but !isClean (Steady state with errors)
+        qualityMultiplier = QUALITY_MULTIPLIER_WITH_ERRORS;
+        bonuses.push("Has Errors");
     }
 
     // --- FINAL CALCULATION ---
