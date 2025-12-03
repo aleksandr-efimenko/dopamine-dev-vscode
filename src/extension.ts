@@ -357,28 +357,93 @@ function playSound(context: vscode.ExtensionContext, customPath: string | undefi
 }
 
 function getAnalyticsWebviewContent(stats: DailyStat[]) {
-    const maxVal = Math.max(...stats.map(s => Math.max(s.earned, s.spent)), 10); // Min max is 10 to avoid div/0
+    // 1. Check for empty data
+    const hasData = stats.length > 0 && stats.some(s => s.earned > 0 || s.spent > 0);
+    
+    if (!hasData) {
+        return `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Dopamine Analytics</title>
+            <style>
+                body {
+                    background-color: var(--vscode-editor-background);
+                    color: var(--vscode-editor-foreground);
+                    font-family: var(--vscode-font-family);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }
+                h2 { color: var(--vscode-descriptionForeground); }
+            </style>
+        </head>
+        <body>
+            <h2>No transaction data available for the last 7 days.</h2>
+        </body>
+        </html>`;
+    }
 
-    const bars = stats.map(s => {
-        const earnedHeight = (s.earned / maxVal) * 100;
-        const spentHeight = (s.spent / maxVal) * 100;
+    // 2. Chart Dimensions & Scaling
+    const width = 800;
+    const height = 400;
+    const padding = 60;
+    const chartWidth = width - (padding * 2);
+    const chartHeight = height - (padding * 2);
+    
+    // Find Max Value for Y-Axis Scaling
+    let maxVal = Math.max(...stats.map(s => Math.max(s.earned, s.spent)));
+    if (maxVal === 0) maxVal = 10;
+    // Add 10% buffer
+    maxVal = Math.ceil(maxVal * 1.1);
+
+    const barWidth = (chartWidth / stats.length) / 2.5;
+    const groupWidth = chartWidth / stats.length;
+
+    // 3. Generate SVG Content
+    let svgContent = '';
+    
+    // Y-Axis & Grid lines (5 steps)
+    for (let i = 0; i <= 5; i++) {
+        const val = Math.round((maxVal / 5) * i);
+        const y = padding + chartHeight - ((val / maxVal) * chartHeight);
         
-        // Parse YYYY-MM-DD as local date to prevent timezone shifts
-        const [y, m, d] = s.date.split('-').map(Number);
+        // Grid line
+        svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--vscode-widget-border)" stroke-width="1" opacity="0.3" />`;
+        // Text
+        svgContent += `<text x="${padding - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="var(--vscode-descriptionForeground)">${val}</text>`;
+    }
+
+    // Bars & X-Axis Labels
+    stats.forEach((stat, index) => {
+        const x = padding + (index * groupWidth) + (groupWidth / 2);
+        
+        // Earned Bar
+        const earnedH = (stat.earned / maxVal) * chartHeight;
+        const earnedY = padding + chartHeight - earnedH;
+        svgContent += `<rect x="${x - barWidth - 2}" y="${earnedY}" width="${barWidth}" height="${earnedH}" fill="var(--vscode-testing-iconPassed)" opacity="0.9">
+            <title>Earned: ${stat.earned}</title>
+        </rect>`;
+
+        // Spent Bar
+        const spentH = (stat.spent / maxVal) * chartHeight;
+        const spentY = padding + chartHeight - spentH;
+        svgContent += `<rect x="${x + 2}" y="${spentY}" width="${barWidth}" height="${spentH}" fill="var(--vscode-testing-iconFailed)" opacity="0.9">
+             <title>Spent: ${stat.spent}</title>
+        </rect>`;
+
+        // Date Label
+        const [y, m, d] = stat.date.split('-').map(Number);
         const dateObj = new Date(y, m - 1, d);
-        const dateLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+        const label = dateObj.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
         
-        return `
-            <div class="day-group">
-                <div class="bars">
-                    <div class="bar earned" style="height: ${earnedHeight}%;" title="Earned: ${s.earned}"></div>
-                    <div class="bar spent" style="height: ${spentHeight}%;" title="Spent: ${s.spent}"></div>
-                </div>
-                <div class="label">${dateLabel}</div>
-            </div>
-        `;
-    }).join('');
+        svgContent += `<text x="${x}" y="${height - padding + 20}" text-anchor="middle" font-size="12" fill="var(--vscode-descriptionForeground)">${label}</text>`;
+    });
 
+    // 4. Return Full HTML
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -395,86 +460,44 @@ function getAnalyticsWebviewContent(stats: DailyStat[]) {
                 flex-direction: column;
                 align-items: center;
             }
-            h1 { color: var(--vscode-textLink-foreground); margin-bottom: 40px; }
-            .chart-container {
-                display: flex;
-                align-items: flex-end;
-                justify-content: center;
-                gap: 15px;
-                height: 300px;
+            h1 { color: var(--vscode-textLink-foreground); margin-bottom: 20px; }
+            .container {
                 width: 100%;
-                max-width: 800px;
-                padding-bottom: 20px;
-                border-bottom: 1px solid var(--vscode-widget-border);
-            }
-            .day-group {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                height: 100%;
-                justify-content: flex-end;
-                flex: 1;
-            }
-            .bars {
-                display: flex;
-                align-items: flex-end;
-                gap: 4px;
-                height: 100%;
-                width: 100%;
-                justify-content: center;
-            }
-            .bar {
-                width: 15px;
-                border-radius: 3px 3px 0 0;
-                transition: height 0.5s ease;
-                min-height: 1px;
-            }
-            .bar.earned {
-                background-color: var(--vscode-testing-iconPassed);
-                opacity: 0.8;
-            }
-            .bar.earned:hover { opacity: 1; }
-            .bar.spent {
-                background-color: var(--vscode-testing-iconFailed);
-                opacity: 0.8;
-            }
-            .bar.spent:hover { opacity: 1; }
-            .label {
-                margin-top: 10px;
-                font-size: 12px;
-                color: var(--vscode-descriptionForeground);
-                text-align: center;
+                max-width: 900px;
+                background: var(--vscode-editor-background);
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             }
             .legend {
                 display: flex;
-                gap: 20px;
-                margin-top: 20px;
+                justify-content: center;
+                gap: 30px;
+                margin-top: 10px;
+                margin-bottom: 20px;
             }
-            .legend-item {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 14px;
-            }
-            .dot { width: 10px; height: 10px; border-radius: 50%; }
+            .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+            .dot { width: 12px; height: 12px; border-radius: 2px; }
         </style>
     </head>
     <body>
         <h1>Coin Activity (Last 7 Days)</h1>
         
-        <div class="chart-container">
-            ${bars}
-        </div>
+        <div class="container">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="dot" style="background-color: var(--vscode-testing-iconPassed);"></div>
+                    <span>Earned</span>
+                </div>
+                <div class="legend-item">
+                    <div class="dot" style="background-color: var(--vscode-testing-iconFailed);"></div>
+                    <span>Spent</span>
+                </div>
+            </div>
 
-        <div class="legend">
-            <div class="legend-item">
-                <div class="dot" style="background-color: var(--vscode-testing-iconPassed);"></div>
-                <span>Earned</span>
-            </div>
-            <div class="legend-item">
-                <div class="dot" style="background-color: var(--vscode-testing-iconFailed);"></div>
-                <span>Spent</span>
-            </div>
+            <svg viewBox="0 0 ${width} ${height}" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+                ${svgContent}
+            </svg>
         </div>
     </body>
     </html>`;
