@@ -31,7 +31,8 @@ suite('Wallet Tests', () => {
         // Create a mock context
         const mockGlobalState = new MockMemento();
         const mockContext = {
-            globalState: mockGlobalState
+            globalState: mockGlobalState,
+            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
         } as unknown as vscode.ExtensionContext;
 
         const wallet = new Wallet(mockContext);
@@ -61,7 +62,8 @@ suite('Wallet Tests', () => {
     test('Daily Reset', () => {
         const mockGlobalState = new MockMemento();
         const mockContext = {
-            globalState: mockGlobalState
+            globalState: mockGlobalState,
+            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
         } as unknown as vscode.ExtensionContext;
 
         const KEY_BALANCE = 'dopamine-dev.balance';

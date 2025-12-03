@@ -27,6 +27,10 @@
       {
         "command": "dopamine-dev.checkBalance",
         "title": "Check Dopamine Balance"
+      },
+      {
+        "command": "dopamine-dev.showTransactionLog",
+        "title": "Show Dopamine Transaction Log"
       }
     ],
     "configuration": {

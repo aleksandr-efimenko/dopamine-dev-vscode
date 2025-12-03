@@ -70,6 +70,17 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(`💰 Your Balance: ${wallet.getBalance()} Coins`);
     }));
 
+    // Command: Show Transaction Log
+    context.subscriptions.push(vscode.commands.registerCommand('dopamine-dev.showTransactionLog', async () => {
+        const logPath = wallet.getLogPath();
+        try {
+            const doc = await vscode.workspace.openTextDocument(logPath);
+            await vscode.window.showTextDocument(doc);
+        } catch (e) {
+            vscode.window.showErrorMessage(`Could not open log file at ${logPath}. It might not exist yet.`);
+        }
+    }));
+
     // Event: On Change (Track Diff & Performance)
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
         const config = vscode.workspace.getConfiguration('dopamineDev');
@@ -232,7 +243,11 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
     }
 
     // Apply to Wallet
-    wallet.addCoins(totalCoins);
+    const reasonParts = [`Code Action (${magnitude})`];
+    if (isJackpot) { reasonParts.push('JACKPOT'); }
+    if (bonuses.length > 0) { reasonParts.push(bonuses.join(', ')); }
+    
+    wallet.addCoins(totalCoins, reasonParts.join(' '));
 
     // --- VISUALS & SOUND ---
     const bonusText = bonuses.length > 0 ? `(${bonuses.join(', ')})` : '';

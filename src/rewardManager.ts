@@ -147,7 +147,7 @@ export class RewardManager {
                 switch (message.command) {
                     case 'spinAgain':
                         const cost = 1;
-                        if (this.wallet.spendCoins(cost)) {
+                        if (this.wallet.spendCoins(cost, "Respin Quote")) {
                             vscode.window.setStatusBarMessage(`Spent ${cost} coin for a new quote!`, 2000);
                             const newQuote = getQuote();
                             panel.webview.postMessage({ command: 'newQuote', quote: newQuote });
@@ -315,7 +315,7 @@ export class RewardManager {
                 switch (message.command) {
                     case 'spinAgain':
                         const cost = 1;
-                        if (this.wallet.spendCoins(cost)) {
+                        if (this.wallet.spendCoins(cost, "Respin Image")) {
                             // Success: Tell webview to reload
                              vscode.window.setStatusBarMessage(`Spent ${cost} coin for a respin!`, 2000);
                              panel.webview.postMessage({ command: 'reload' });
