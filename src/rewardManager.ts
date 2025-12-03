@@ -73,7 +73,7 @@ export class RewardManager {
         } else if (reward.type === 'image') {
             this.showImageReward(reward);
         } else if (reward.type === 'quote') {
-            const display = vscode.workspace.getConfiguration('dopamineDev').get<string>('quoteDisplay', 'tab');
+            const display = vscode.workspace.getConfiguration('dopamineDev').get<string>('quoteDisplay', 'notification');
             if (display === 'notification') {
                 this.showQuoteNotification(reward);
             } else {

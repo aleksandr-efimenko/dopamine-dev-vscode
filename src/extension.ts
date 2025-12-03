@@ -49,7 +49,6 @@ let diffTracker: DiffTracker;
 let performanceTracker: PerformanceTracker;
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Code Casino is active!');
     wallet = new Wallet(context);
     rewardManager = new RewardManager(wallet);
     diffTracker = new DiffTracker();

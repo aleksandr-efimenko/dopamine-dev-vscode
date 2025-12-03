@@ -49,8 +49,8 @@ This extension allows you to customize your experience via VS Code settings:
 * `dopamineDev.sounds.coin`: Path to a custom sound file for coin rewards.
 * `dopamineDev.ignoreExtensions`: List of file extensions (e.g., `['.md', '.txt']`) to prevent the slot machine from triggering on save. Default includes `['.json']`.
 * `dopamineDev.bulkThreshold`: Character limit for a single change to be considered 'typed'. Changes above this are considered 'pasted' or 'generated' and are discounted in WPM calculation and contribute less to Diff Magnitude. Default is `50`.
-* `dopamineDev.rewards`: A list of rewards to pick from when you win.
-* `dopamineDev.quoteDisplay`: Choose how quotes are shown: `"tab"` (larger, dedicated view) or `"notification"` (popup). Default is `"tab"`.
+* `dopamineDev.rewards`: A list of rewards to pick from when you win. Default includes only quotes across all categories.
+* `dopamineDev.quoteDisplay`: Choose how quotes are shown: `"tab"` (larger, dedicated view) or `"notification"` (popup). Default is `"notification"`.
 
 ### Example Configuration
 

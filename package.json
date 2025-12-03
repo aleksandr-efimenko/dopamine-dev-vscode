@@ -107,24 +107,9 @@
           "type": "array",
           "default": [
             {
-              "type": "image",
-              "content": "kitten",
-              "label": "Cute Kitten"
-            },
-            {
-              "type": "url",
-              "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-              "label": "Mystery Reward"
-            },
-            {
               "type": "quote",
-              "content": "programming",
-              "label": "Tech Wisdom"
-            },
-            {
-              "type": "message",
-              "content": "Take a deep breath and stretch!",
-              "label": "Wellness Check"
+              "content": "any",
+              "label": "Inspiration"
             }
           ],
           "description": "List of rewards. Types: 'url' (opens browser), 'message' (info box), 'image' (opens tab with image/keyword).",
@@ -160,7 +145,7 @@
         "dopamineDev.quoteDisplay": {
           "type": "string",
           "enum": ["tab", "notification"],
-          "default": "tab",
+          "default": "notification",
           "description": "Display quotes in a dedicated tab (webview) or as a notification popup."
         }
       }
