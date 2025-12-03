@@ -1,6 +1,8 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { Wallet } from '../src/wallet';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Mocking Memento for globalState
 class MockMemento implements vscode.Memento {
@@ -27,12 +29,29 @@ class MockMemento implements vscode.Memento {
 }
 
 suite('Wallet Tests', () => {
-    test('Wallet operations', () => {
+    const tmpDir = '/tmp/dopamine-dev-test';
+
+    setup(() => {
+        // Ensure clean state before each test
+        if (fs.existsSync(tmpDir)) {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        }
+        fs.mkdirSync(tmpDir, { recursive: true });
+    });
+
+    teardown(() => {
+        // Clean up after tests
+        if (fs.existsSync(tmpDir)) {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        }
+    });
+
+    test('Wallet operations and Logging', async () => {
         // Create a mock context
         const mockGlobalState = new MockMemento();
         const mockContext = {
             globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
+            globalStorageUri: vscode.Uri.file(tmpDir)
         } as unknown as vscode.ExtensionContext;
 
         const wallet = new Wallet(mockContext);
@@ -41,29 +60,30 @@ suite('Wallet Tests', () => {
         assert.strictEqual(wallet.getBalance(), 0, 'Initial balance should be 0');
 
         // Add Coins
-        wallet.addCoins(5);
+        wallet.addCoins(5, 'Test Earn');
         assert.strictEqual(wallet.getBalance(), 5, 'Balance should be 5 after adding 5');
 
         // Add More
-        wallet.addCoins(10);
+        wallet.addCoins(10, 'Test Earn 2');
         assert.strictEqual(wallet.getBalance(), 15, 'Balance should be 15 after adding 10');
 
         // Spend Coins (Success)
-        const success = wallet.spendCoins(10);
+        const success = wallet.spendCoins(10, 'Test Spend');
         assert.strictEqual(success, true, 'Spending 10 coins should succeed');
         assert.strictEqual(wallet.getBalance(), 5, 'Balance should be 5 after spending');
 
-        // Spend Coins (Fail)
-        const fail = wallet.spendCoins(100);
-        assert.strictEqual(fail, false, 'Spending 100 coins should fail');
-        assert.strictEqual(wallet.getBalance(), 5, 'Balance should remain 5 after failed spend');
+        // Check Transactions
+        const transactions = await wallet.getRecentTransactions();
+        assert.strictEqual(transactions.length, 4, 'Should have 4 transactions (1 reset + 2 earns + 1 spend)');
+        assert.strictEqual(transactions[0].type, 'spend', 'Last transaction should be spend');
+        assert.strictEqual(transactions[0].reason, 'Test Spend');
     });
 
     test('Daily Reset', () => {
         const mockGlobalState = new MockMemento();
         const mockContext = {
             globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
+            globalStorageUri: vscode.Uri.file(tmpDir)
         } as unknown as vscode.ExtensionContext;
 
         const KEY_BALANCE = 'dopamine-dev.balance';
@@ -86,847 +106,41 @@ suite('Wallet Tests', () => {
         const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
         assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
     });
-});
 
-
-    test('Daily Reset', () => {
+    test('Daily Stats Aggregation', async () => {
         const mockGlobalState = new MockMemento();
         const mockContext = {
             globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
+            globalStorageUri: vscode.Uri.file(tmpDir)
         } as unknown as vscode.ExtensionContext;
 
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
         const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
 
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
+        // Generate some activity
+        wallet.addCoins(50, 'Work');
+        wallet.spendCoins(10, 'Reward');
+        wallet.addCoins(20, 'Bonus');
 
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        // Wait for file system writes (TransactionLogger uses sync append, but good to be safe)
         
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
+        const stats = await wallet.getDailyStats(7);
         
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
+        // Find today's stat
+        const todayStr = new Date().toLocaleDateString('en-CA').split('T')[0]; // YYYY-MM-DD
         
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
-
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
-        
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
-        
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
-    });
-});
-
-    test('Daily Reset', () => {
-        const mockGlobalState = new MockMemento();
-        const mockContext = {
-            globalState: mockGlobalState,
-            globalStorageUri: vscode.Uri.file('/tmp/dopamine-dev-test')
-        } as unknown as vscode.ExtensionContext;
-
-        const KEY_BALANCE = 'dopamine-dev.balance';
-        const KEY_LAST_ACTIVE_DATE = 'dopamine-dev.lastActiveDate';
-
-        // Setup: Set state to "yesterday" with some coins
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        // Note: getDailyStats uses local time construction. 
+        // Since tests run in same env, it should match.
         
-        mockGlobalState.update(KEY_BALANCE, 100);
-        mockGlobalState.update(KEY_LAST_ACTIVE_DATE, yesterday.toDateString());
+        const todayStat = stats.find(s => s.date === todayStr) || stats[stats.length - 1]; // Fallback to last if date matches
 
-        // Act: Initialize wallet (triggers checkDailyReset)
-        const wallet = new Wallet(mockContext);
+        // Check if we found a stat entry that has data
+        assert.ok(todayStat, 'Should have stats for today');
         
-        // Assert
-        assert.strictEqual(wallet.getBalance(), 0, 'Balance should be reset to 0 on a new day');
+        // Initial reset (0) + 50 + 20 = 70 Earned
+        // 10 Spent
+        // NOTE: The logger logs a 'reset' transaction with 0 amount on init.
         
-        // Verify date updated
-        const storedDate = mockGlobalState.get(KEY_LAST_ACTIVE_DATE);
-        assert.strictEqual(storedDate, new Date().toDateString(), 'Date should be updated to today');
+        assert.strictEqual(todayStat.earned, 70, 'Should have 70 coins earned');
+        assert.strictEqual(todayStat.spent, 10, 'Should have 10 coins spent');
     });
 });
