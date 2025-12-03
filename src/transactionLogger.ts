@@ -26,6 +26,13 @@ export class TransactionLogger {
             return [];
         }
 
+        const toLocalYMD = (date: Date): string => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
         return new Promise((resolve, reject) => {
             fs.readFile(this.logPath, 'utf8', (err, data) => {
                 if (err) {
@@ -36,9 +43,11 @@ export class TransactionLogger {
                 const statsMap = new Map<string, { earned: number; spent: number }>();
 
                 const now = new Date();
-                const startDate = new Date();
+                // Reset to start of today (local) to ensure consistent day math
+                now.setHours(0,0,0,0);
+                
+                const startDate = new Date(now);
                 startDate.setDate(now.getDate() - days + 1);
-                startDate.setHours(0, 0, 0, 0);
 
                 for (const line of lines) {
                     if (!line.trim()) continue;
@@ -46,10 +55,11 @@ export class TransactionLogger {
                         const t: Transaction = JSON.parse(line);
                         const tDate = new Date(t.timestamp);
                         
-                        // Filter by date range
-                        if (tDate < startDate) continue;
+                        // Filter by date range (compare timestamps for simple "after start" check)
+                        // Note: tDate is specific time, startDate is midnight. 
+                        if (tDate.getTime() < startDate.getTime()) continue;
 
-                        const dateKey = tDate.toISOString().split('T')[0]; // YYYY-MM-DD
+                        const dateKey = toLocalYMD(tDate);
 
                         if (!statsMap.has(dateKey)) {
                             statsMap.set(dateKey, { earned: 0, spent: 0 });
@@ -71,7 +81,7 @@ export class TransactionLogger {
                 for (let i = 0; i < days; i++) {
                     const d = new Date(startDate);
                     d.setDate(startDate.getDate() + i);
-                    const dateKey = d.toISOString().split('T')[0];
+                    const dateKey = toLocalYMD(d);
                     
                     const entry = statsMap.get(dateKey) || { earned: 0, spent: 0 };
                     result.push({

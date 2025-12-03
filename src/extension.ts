@@ -357,7 +357,11 @@ function getAnalyticsWebviewContent(stats: DailyStat[]) {
     const bars = stats.map(s => {
         const earnedHeight = (s.earned / maxVal) * 100;
         const spentHeight = (s.spent / maxVal) * 100;
-        const dateLabel = new Date(s.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+        
+        // Parse YYYY-MM-DD as local date to prevent timezone shifts
+        const [y, m, d] = s.date.split('-').map(Number);
+        const dateObj = new Date(y, m - 1, d);
+        const dateLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
         
         return `
             <div class="day-group">
