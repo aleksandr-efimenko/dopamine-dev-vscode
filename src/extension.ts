@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const ignoreExtensions = config.get<string[]>('ignoreExtensions', []);
+        const ignoreExtensions = config.get<string[]>('ignoreExtensions', ['.json']);
         const ext = path.extname(document.fileName);
 
         if (ignoreExtensions.includes(ext)) {
@@ -167,7 +167,7 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
     }
 
     const winOdds = config.get<number>('winOdds', DEFAULT_WIN_ODDS);
-    const soundEnabled = config.get<boolean>('enableSound', true);
+    const soundEnabled = config.get<boolean>('enableSound', false);
     const roll = Math.random();
 
     // --- CALCULATE COINS ---

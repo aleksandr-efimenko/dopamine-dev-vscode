@@ -33,7 +33,7 @@
       "properties": {
         "dopamineDev.enableSound": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Enable or disable sound effects."
         },
         "dopamineDev.sounds.win": {
@@ -48,7 +48,9 @@
         },
         "dopamineDev.ignoreExtensions": {
           "type": "array",
-          "default": [],
+          "default": [
+            ".json"
+          ],
           "description": "List of file extensions to ignore (e.g., ['.md', '.txt']).",
           "items": {
             "type": "string"
@@ -177,7 +179,7 @@
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vsce": "^2.15.0"
+    "@vscode/vsce": "^3.1.0"
   },
   "dependencies": {
     "sound-play": "^1.1.0"

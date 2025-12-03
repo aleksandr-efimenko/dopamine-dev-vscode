@@ -44,10 +44,10 @@ Configure your own rewards for winning!
 This extension allows you to customize your experience via VS Code settings:
 
 * `dopamineDev.winOdds`: The probability of winning a jackpot (0.0 to 1.0). Default is `0.1` (10%).
-* `dopamineDev.enableSound`: Enable or disable sound effects (Win/Coin sounds). Default is `true`.
+* `dopamineDev.enableSound`: Enable or disable sound effects (Win/Coin sounds). Default is `false`.
 * `dopamineDev.sounds.win`: Path to a custom sound file for jackpots.
 * `dopamineDev.sounds.coin`: Path to a custom sound file for coin rewards.
-* `dopamineDev.ignoreExtensions`: List of file extensions (e.g., `['.md', '.txt']`) to prevent the slot machine from triggering on save. Default is empty.
+* `dopamineDev.ignoreExtensions`: List of file extensions (e.g., `['.md', '.txt']`) to prevent the slot machine from triggering on save. Default includes `['.json']`.
 * `dopamineDev.bulkThreshold`: Character limit for a single change to be considered 'typed'. Changes above this are considered 'pasted' or 'generated' and are discounted in WPM calculation and contribute less to Diff Magnitude. Default is `50`.
 * `dopamineDev.rewards`: A list of rewards to pick from when you win.
 
