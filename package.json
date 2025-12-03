@@ -31,6 +31,10 @@
       {
         "command": "dopamine-dev.showTransactionLog",
         "title": "Show Dopamine Transaction Log"
+      },
+      {
+        "command": "dopamine-dev.showHistory",
+        "title": "Show Dopamine History"
       }
     ],
     "configuration": {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { Wallet } from './wallet';
+import { Transaction } from './transactionLogger';
 import { RewardManager } from './rewardManager';
 import { DiffTracker, DiffStats, ThresholdConfig } from './diffTracker';
 import { PerformanceTracker, PerformanceStats } from './performanceTracker';
@@ -56,6 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Status Bar
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, STATUS_BAR_PRIORITY);
+    statusBarItem.command = 'dopamine-dev.showHistory';
     updateStatusBar();
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
@@ -70,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(`💰 Your Balance: ${wallet.getBalance()} Coins`);
     }));
 
-    // Command: Show Transaction Log
+    // Command: Show Transaction Log (Raw File)
     context.subscriptions.push(vscode.commands.registerCommand('dopamine-dev.showTransactionLog', async () => {
         const logPath = wallet.getLogPath();
         try {
@@ -78,6 +80,45 @@ export function activate(context: vscode.ExtensionContext) {
             await vscode.window.showTextDocument(doc);
         } catch (e) {
             vscode.window.showErrorMessage(`Could not open log file at ${logPath}. It might not exist yet.`);
+        }
+    }));
+
+    // Command: Show History (QuickPick)
+    context.subscriptions.push(vscode.commands.registerCommand('dopamine-dev.showHistory', async () => {
+        const transactions = await wallet.getRecentTransactions(50);
+        
+        if (transactions.length === 0) {
+            vscode.window.showInformationMessage("No transaction history yet.");
+            return;
+        }
+
+        const items: vscode.QuickPickItem[] = transactions.map(t => {
+            let icon = '$(info)';
+            if (t.type === 'earn') { icon = '$(gift)'; }
+            else if (t.type === 'spend') { icon = '$(flame)'; }
+            else if (t.type === 'reset') { icon = '$(history)'; }
+
+            const date = new Date(t.timestamp).toLocaleString();
+            
+            return {
+                label: `${icon} ${t.type === 'spend' ? '-' : '+'}${t.amount} Coins`,
+                description: t.reason,
+                detail: `${date} | Balance: ${t.balanceAfter}`
+            };
+        });
+
+        items.push({
+            label: "$(file-text) View Full Log File",
+            description: "",
+            detail: "Open the raw JSONL file"
+        });
+
+        const selection = await vscode.window.showQuickPick(items, {
+            placeHolder: `Recent Transactions (Balance: ${wallet.getBalance()} Coins)`
+        });
+
+        if (selection && selection.label.includes("View Full Log File")) {
+            vscode.commands.executeCommand('dopamine-dev.showTransactionLog');
         }
     }));
 

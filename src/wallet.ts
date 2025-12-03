@@ -55,4 +55,8 @@ export class Wallet {
     public getLogPath(): string {
         return this.logger.getLogPath();
     }
+
+    public async getRecentTransactions(limit: number = 50) {
+        return this.logger.getRecentTransactions(limit);
+    }
 }

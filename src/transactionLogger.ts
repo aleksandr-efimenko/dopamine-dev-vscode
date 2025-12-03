@@ -45,4 +45,34 @@ export class TransactionLogger {
     public getLogPath(): string {
         return this.logPath;
     }
+
+    public async getRecentTransactions(limit: number = 50): Promise<Transaction[]> {
+        if (!fs.existsSync(this.logPath)) {
+            return [];
+        }
+
+        return new Promise((resolve, reject) => {
+            fs.readFile(this.logPath, 'utf8', (err, data) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                const lines = data.trim().split('\n');
+                const transactions: Transaction[] = [];
+
+                // Read from end
+                for (let i = lines.length - 1; i >= 0 && transactions.length < limit; i--) {
+                    const line = lines[i].trim();
+                    if (line) {
+                        try {
+                            transactions.push(JSON.parse(line));
+                        } catch (e) {
+                            // Ignore malformed lines
+                        }
+                    }
+                }
+                resolve(transactions);
+            });
+        });
+    }
 }
