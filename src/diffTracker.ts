@@ -40,20 +40,28 @@ export class DiffTracker {
             const linesAdded = (change.text.match(/\n/g) || []).length;
             const linesRemoved = change.range.end.line - change.range.start.line;
             const charsAdded = change.text.replace(/\s/g, '').length; // Exclude whitespace from count
-            const charsRemoved = change.rangeLength;
+            const removedText = event.document.getText(change.range);
+            const charsRemoved = removedText.replace(/\s/g, '').length; // Exclude whitespace removed
 
-            stats.linesAdded += linesAdded;
-            stats.linesRemoved += linesRemoved;
-            stats.charsAdded += charsAdded;
-            stats.charsRemoved += charsRemoved;
+            // Only count lines when non-whitespace content was added/removed
+            if (charsAdded > 0) {
+                stats.linesAdded += linesAdded;
+                stats.charsAdded += charsAdded;
+            }
+            if (charsRemoved > 0) {
+                stats.linesRemoved += linesRemoved;
+                stats.charsRemoved += charsRemoved;
+            }
 
             // Classify additions
             if (charsAdded > bulkThreshold) { 
                 stats.bulkLinesAdded += linesAdded;
                 stats.bulkCharsAdded += charsAdded;
             } else { // Assume typed (includes small autocompletes)
-                stats.typedLinesAdded += linesAdded;
-                stats.typedCharsAdded += charsAdded;
+                if (charsAdded > 0) {
+                    stats.typedLinesAdded += linesAdded;
+                    stats.typedCharsAdded += charsAdded;
+                }
             }
 
             // Classify removals
@@ -61,8 +69,10 @@ export class DiffTracker {
                 stats.bulkLinesRemoved += linesRemoved;
                 stats.bulkCharsRemoved += charsRemoved;
             } else { // Assume typed removal (e.g., backspace, small refactor delete)
-                stats.typedLinesRemoved += linesRemoved;
-                stats.typedCharsRemoved += charsRemoved;
+                if (charsRemoved > 0) {
+                    stats.typedLinesRemoved += linesRemoved;
+                    stats.typedCharsRemoved += charsRemoved;
+                }
             }
         }
         this.changes.set(key, stats);

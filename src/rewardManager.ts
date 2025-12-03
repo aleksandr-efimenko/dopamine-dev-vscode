@@ -73,8 +73,38 @@ export class RewardManager {
         } else if (reward.type === 'image') {
             this.showImageReward(reward);
         } else if (reward.type === 'quote') {
-            this.showQuoteMessage(reward);
+            const display = vscode.workspace.getConfiguration('dopamineDev').get<string>('quoteDisplay', 'tab');
+            if (display === 'notification') {
+                this.showQuoteNotification(reward);
+            } else {
+                this.showQuoteMessage(reward);
+            }
         }
+    }
+
+    private showQuoteNotification(reward: Reward) {
+        const category = reward.content.toLowerCase();
+        let filtered = allQuotes;
+        if (category && category !== 'any') {
+            filtered = allQuotes.filter(q => q.category === category);
+        }
+        if (filtered.length === 0) { filtered = allQuotes; }
+
+        const available = filtered.filter(q => !this.recentQuotes.includes(q.text));
+        const candidates = available.length > 0 ? available : filtered;
+        const quote = candidates.length > 0 
+            ? candidates[Math.floor(Math.random() * candidates.length)]
+            : { text: "No quotes found.", author: "System", category: "error" };
+
+        if (quote.text !== "No quotes found.") {
+            this.recentQuotes.push(quote.text);
+            if (this.recentQuotes.length > this.MAX_HISTORY) {
+                this.recentQuotes.shift();
+            }
+        }
+
+        // VS Code notifications have limited size; present the full quote inline.
+        vscode.window.showInformationMessage(`❝ ${quote.text}\n— ${quote.author}`);
     }
 
     private showQuoteMessage(reward: Reward) {

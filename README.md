@@ -47,9 +47,12 @@ This extension allows you to customize your experience via VS Code settings:
 * `dopamineDev.enableSound`: Enable or disable sound effects (Win/Coin sounds). Default is `false`.
 * `dopamineDev.sounds.win`: Path to a custom sound file for jackpots.
 * `dopamineDev.sounds.coin`: Path to a custom sound file for coin rewards.
+* `dopamineDev.soundVolume`: Sound volume from `0.0` (mute) to `1.0` (full). On macOS this uses the system `afplay` volume; other platforms may ignore this.
+Sounds are played via HTML5 audio in a temporary webview for consistent volume control across platforms.
 * `dopamineDev.ignoreExtensions`: List of file extensions (e.g., `['.md', '.txt']`) to prevent the slot machine from triggering on save. Default includes `['.json']`.
 * `dopamineDev.bulkThreshold`: Character limit for a single change to be considered 'typed'. Changes above this are considered 'pasted' or 'generated' and are discounted in WPM calculation and contribute less to Diff Magnitude. Default is `50`.
 * `dopamineDev.rewards`: A list of rewards to pick from when you win.
+* `dopamineDev.quoteDisplay`: Choose how quotes are shown: `"tab"` (larger, dedicated view) or `"notification"` (popup). Default is `"tab"`.
 
 ### Example Configuration
 

@@ -41,10 +41,12 @@ export class PerformanceTracker {
         // Iterate changes to filter out pastes/generations
         for (const change of event.contentChanges) {
             const length = change.text.length;
-            
+            const nonWhitespaceLength = change.text.replace(/\s/g, '').length;
+
             // Heuristic: If change is too large, assume it's a paste or gen -> Ignore for WPM
-            if (length > 0 && length <= bulkThreshold) {
-                for (let i = 0; i < length; i++) {
+            // Also ignore pure formatting (whitespace-only) changes
+            if (nonWhitespaceLength > 0 && nonWhitespaceLength <= bulkThreshold) {
+                for (let i = 0; i < nonWhitespaceLength; i++) {
                     this.charTimestamps.push(now);
                 }
             }
