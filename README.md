@@ -76,7 +76,7 @@ Customize the experience to fit your workflow in VS Code Settings (`Cmd+,` -> Se
 | `dopamineDev.winOdds` | Probability of hitting a Jackpot (0.0 - 1.0). | `0.1` (10%) |
 | `dopamineDev.enableSound` | Enable satisfying "cha-ching" sounds on wins. | `false` |
 | `dopamineDev.bulkThreshold` | Large chunks of text (pastes) don't count as "typing". | `50` chars |
-| `dopamineDev.rewards` | Customize what happens on a Jackpot (Quotes, Images, URLs). | Quotes |
+| `dopamineDev.rewards` | Customize what happens on a Jackpot. Available types: `url`, `message`, `image`, `quote`. | Quotes |
 | `dopamineDev.quoteDisplay` | Show quotes as a subtle `notification` or a full `tab`. | `notification` |
 | `dopamineDev.ignoreExtensions`| Files to ignore (e.g. JSON, LOG). | `['.json']` |
 
