@@ -7,7 +7,7 @@
 
 ---
 
-**Coding is hard work.** Staying in the zone, fixing complex bugs, and writing clean code takes mental energy. **Dopamine Dev** turns your VS Code editor into a variable reward system, giving you instant, satisfying feedback for your productivity.
+**Dopamine Dev** turns your VS Code editor into a variable reward system, giving you instant, satisfying feedback for your productivity.
 
 Think of it as a slot machine for your productivity: write code, save your file, and watch the status bar spin!
 
@@ -102,6 +102,12 @@ Want to open a funny GIF or get a specific message when you hit a Jackpot? Add t
         "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         "label": "Mystery Link",
         "weight": 0.5
+    },
+    {
+        "type": "quote",
+        "content": "motivation",
+        "label": "Daily Boost",
+        "weight": 1.5
     }
 ]
 ```
