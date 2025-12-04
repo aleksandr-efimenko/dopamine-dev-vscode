@@ -326,7 +326,7 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
             updateStatusBar(`$(check) Saved +${totalCoins} Coins ${bonusText}`);
             // Only play coin sound if not buggy (errors didn't increase)
             if (perfStats.errorsFixed >= 0) {
-                playSound(context, config.get<string>('sounds.coin'), 'coin-received.mp3', soundEnabled);
+                playSound(context, config.get<string>('sounds.coin'), 'pop.mp3', soundEnabled);
             }
         } else {
             updateStatusBar(`$(alert) Saved (0 Coins) ${bonusText}`);
