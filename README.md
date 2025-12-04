@@ -93,7 +93,7 @@ Want to open a funny GIF or get a specific message when you hit a Jackpot? Add t
     },
     {
         "type": "message",
-        "content": "Drink some water! Water drop icon here.",
+        "content": "Drink some water!",
         "label": "Hydration Check",
         "weight": 1
     },
