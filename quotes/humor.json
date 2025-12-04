@@ -178,5 +178,485 @@
     "text": "Software is a gas; it expands to fill its container.",
     "author": "Nathan Myhrvold",
     "category": "humor"
+  },
+  {
+    "text": "There are only 10 types of people in the world: those who understand binary, and those who don't.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Debugging: Removing the needles from the haystack, only to realize the haystack was the problem.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My code works. I don't know why. My code doesn't work. I don't know why.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Measuring programming progress by lines of code is like measuring aircraft building progress by weight.",
+    "author": "Bill Gates",
+    "category": "humor"
+  },
+  {
+    "text": "The best programs are the ones you don't have to write.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Hardware eventually fails. Software eventually works.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Programmers are like magicians: they turn coffee into bugs.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "There are two major products that come out of Berkeley: LSD and UNIX. We don’t believe this to be a coincidence.",
+    "author": "Jeremy S. Anderson",
+    "category": "humor"
+  },
+  {
+    "text": "Linux is only free if your time has no value.",
+    "author": "Jamie Zawinski",
+    "category": "humor"
+  },
+  {
+    "text": "In C++ it's harder to shoot yourself in the foot, but when you do, you blow off your whole leg.",
+    "author": "Bjarne Stroustrup",
+    "category": "humor"
+  },
+  {
+    "text": "My favorite programming language is solder.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Walking on water and developing software from a specification are easy if both are frozen.",
+    "author": "Edward V. Berard",
+    "category": "humor"
+  },
+  {
+    "text": "If debugging is the process of removing software bugs, then programming must be the process of putting them in.",
+    "author": "Edsger W. Dijkstra",
+    "category": "humor"
+  },
+  {
+    "text": "The Internet: 'Where men are men, women are men, and children are FBI agents.'",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Computers do not make errors. What they do, they do on purpose.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The programmer is a device for converting caffeine into code.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Deleted code is debugged code.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only difference between a good programmer and a bad programmer is that the good programmer makes a mistake once.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm not a great programmer; I'm just a good programmer with great habits.",
+    "author": "Kent Beck",
+    "category": "humor"
+  },
+  {
+    "text": "Documentation is like sex: when it's good, it's very, very good; and when it's bad, it's better than nothing.",
+    "author": "Dick Brandon",
+    "category": "humor"
+  },
+  {
+    "text": "There are only two hard things in computer science: cache invalidation, naming things, and off-by-one errors.",
+    "author": "Phil Karlton",
+    "category": "humor"
+  },
+  {
+    "text": "The three chief virtues of a programmer are: Laziness, Impatience and Hubris.",
+    "author": "Larry Wall",
+    "category": "humor"
+  },
+  {
+    "text": "My code has no bugs, only undocumented features.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "It works on my machine.",
+    "author": "Every Programmer Ever",
+    "category": "humor"
+  },
+  {
+    "text": "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as you can, you are, by definition, not smart enough to debug it.",
+    "author": "Brian Kernighan",
+    "category": "humor"
+  },
+  {
+    "text": "Any sufficiently advanced bug is indistinguishable from a feature.",
+    "author": "Rich Kulawiec",
+    "category": "humor"
+  },
+  {
+    "text": "Programmers are tools for converting specifications into bugs.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I like to optimize my procrastination.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I’m not anti-social. I’m just not user friendly.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I’m a hacker, not a cracker. I break systems for fun, not profit.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The programmer's brain is a magical place: data goes in, bugs come out.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "If a program is useful, it will have to be changed. And if a program is useless, it will have to be changed.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "What is a programmer's favorite place to hang out? Foo Bar.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "There's no 'I' in 'team', but there is 'bug' in 'debug'.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why do programmers always mix up Halloween and Christmas? Because Oct 31 == Dec 25.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "C++: an octopus made by nailing extra legs onto a dog.",
+    "author": "Steve Mayhew",
+    "category": "humor"
+  },
+  {
+    "text": "Software and cathedrals are much the same – first we build them, then we pray.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Optimism is an occupational hazard of programming: feedback is the treatment.",
+    "author": "Kent Beck",
+    "category": "humor"
+  },
+  {
+    "text": "How many programmers does it take to screw in a lightbulb? None, that's a hardware problem.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I don't have a life. I'm a programmer. I have deadlines.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The compiler is very patient. The debugger is very strict.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only thing worse than a bug is a bug that works perfectly.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "A good programmer is someone who always looks both ways before crossing a one-way street.",
+    "author": "Doug Linder",
+    "category": "humor"
+  },
+  {
+    "text": "Computer science is no more about computers than astronomy is about telescopes.",
+    "author": "Edsger W. Dijkstra",
+    "category": "humor"
+  },
+  {
+    "text": "If you optimize everything, you will always be unhappy.",
+    "author": "Donald Knuth",
+    "category": "humor"
+  },
+  {
+    "text": "There's an old saying in programming: 'If it ain't broke, don't fix it.' It should be: 'If it ain't broke, don't touch it!'",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Java programmers wear glasses because they don't C#.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I've been debugging for a week. I think I'm starting to get Stockholm syndrome.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "If the code is self-documenting, why do they still pay me?",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My job is to make the computer do what it would do anyway, but faster.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only true wisdom is in knowing you know nothing. And that you need to Google everything.",
+    "author": "Socrates (adapted)",
+    "category": "humor"
+  },
+  {
+    "text": "It's not a bug, it's an undocumented feature.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why was the JavaScript developer sad? Because he didn't Node how to Express himself.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The programmer got stuck in the shower because the instructions said: Lather, Rinse, Repeat.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Programmer's wife: 'Go to the store and buy a loaf of bread. If they have eggs, buy a dozen.' Programmer returns with 12 loaves of bread.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "There are 10 kinds of people in this world: those who understand binary, and those who don't.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm not lazy, I'm just on power-saving mode.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The computer is a great tool for quickly solving problems that you wouldn't have without it.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Computers make excellent and efficient servants, but I have no wish to serve under them.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The most effective debugging tool is still a rubber duck.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm not a product of my environment. I'm a product of my error messages.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "A byte walks into a bar and asks for a beer. Bartender says, 'Sure, what can I get you?' Bartender gets him a beer. Bartender says, 'That'll be $5.' Bartender asks, 'You want a light beer?' Byte says, 'No, I'm a full byte.'",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why do Java developers wear glasses? Because they don't C#.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The first 90% of the code accounts for the first 90% of the development time. The remaining 10% of the code accounts for the other 90% of the development time.",
+    "author": "Tom Cargill",
+    "category": "humor"
+  },
+  {
+    "text": "I'm not yelling, I'm just coding in all caps.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My keyboard has a coffee stain on it. It’s a feature, not a bug.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Software development is like playing poker: you bluff, you bet, and sometimes you go all-in on a bad hand.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only thing that isn't debugging is writing the code. And that's already debugging.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I have a compiler in my head, but it's always giving me syntax errors.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The code you just wrote will be obsolete before you finish reading this.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My favorite programming snack is a bug. It's high in protein.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "If at first you don't succeed, then try rewriting the entire system from scratch.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only way to write bug-free code is to write no code at all.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm a minimalist. I only keep the bugs that are absolutely essential.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My code is like a fine wine: it gets better with age. And more bugs.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The hardest part of debugging is knowing when to give up and start over.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why do programmers hate nature? It has too many branches.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "What do you call a programmer who never showers? A stack overflow.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "There are two ways to write error-free programs; only the third one works.",
+    "author": "Alan J. Perlis",
+    "category": "humor"
+  },
+  {
+    "text": "The sooner you start to code, the longer it takes.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm not a product of my environment. I'm a product of my `.`gitignore` file.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Software development is a marathon, not a sprint... where you often forget to train and occasionally trip over your own feet.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "If a bug is found before the product ships, it's a defect. If found after, it's a feature.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "My therapist told me to embrace my flaws. So I added more bugs to my code.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only constant in software development is change. And bugs.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I write code that even I can't understand a week later.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Programmers are the only professionals who are paid to solve problems that they themselves created.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Programming is 10% science, 20% ingenuity, and 70% getting the bugs out.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The definition of a good programmer: one who writes code that works, but only after extensive debugging.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "What's a programmer's favorite type of music? Algorithms.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "Why do programmers get confused between Christmas and Halloween? Because Oct 31 == Dec 25.",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "I'm a debugging wizard. I just make the bugs disappear (temporarily).",
+    "author": "Anonymous",
+    "category": "humor"
+  },
+  {
+    "text": "The only thing standing between you and your goal is the story you keep telling yourself as to why you can't achieve it. And maybe a few compiler errors.",
+    "author": "Jordan Belfort (adapted)",
+    "category": "humor"
+  },
+  {
+    "text": "If builders built buildings the way programmers wrote programs, then the first woodpecker that came along would destroy civilization.",
+    "author": "Gerald Weinberg",
+    "category": "humor"
+  },
+  {
+    "text": "Optimism is a strategy for making a better future. Unless you're a programmer, then it's a lie.",
+    "author": "Noam Chomsky (adapted)",
+    "category": "humor"
+  },
+  {
+    "text": "The definition of a project manager: someone who thinks nine women can make a baby in one month.",
+    "author": "Fred Brooks (adapted)",
+    "category": "humor"
   }
 ]
