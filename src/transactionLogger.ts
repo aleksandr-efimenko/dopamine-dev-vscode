@@ -53,16 +53,35 @@ export class TransactionLogger {
     }
 
     public async getDailyStats(days: number = 7): Promise<DailyStat[]> {
-        if (!fs.existsSync(this.logPath)) {
-            return [];
-        }
-
         const toLocalYMD = (date: Date): string => {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const d = String(date.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
         };
+
+        const generateEmptyStats = (startDate: Date, count: number): DailyStat[] => {
+            const result: DailyStat[] = [];
+            for (let i = 0; i < count; i++) {
+                const d = new Date(startDate);
+                d.setDate(startDate.getDate() + i);
+                result.push({
+                    date: toLocalYMD(d),
+                    earned: 0,
+                    spent: 0
+                });
+            }
+            return result;
+        };
+
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() - days + 1);
+
+        if (!fs.existsSync(this.logPath)) {
+            return generateEmptyStats(startDate, days);
+        }
 
         return new Promise((resolve, reject) => {
             fs.readFile(this.logPath, 'utf8', (err, data) => {
@@ -73,22 +92,13 @@ export class TransactionLogger {
                 const lines = data.trim().split('\n');
                 const statsMap = new Map<string, { earned: number; spent: number }>();
 
-                const now = new Date();
-                // Reset to start of today (local) to ensure consistent day math
-                now.setHours(0,0,0,0);
-                
-                const startDate = new Date(now);
-                startDate.setDate(now.getDate() - days + 1);
-
                 for (const line of lines) {
-                    if (!line.trim()) continue;
+                    if (!line.trim()) { continue; }
                     try {
                         const t: Transaction = JSON.parse(line);
                         const tDate = new Date(t.timestamp);
                         
-                        // Filter by date range (compare timestamps for simple "after start" check)
-                        // Note: tDate is specific time, startDate is midnight. 
-                        if (tDate.getTime() < startDate.getTime()) continue;
+                        if (tDate.getTime() < startDate.getTime()) { continue; }
 
                         const dateKey = toLocalYMD(tDate);
 
@@ -107,19 +117,14 @@ export class TransactionLogger {
                     }
                 }
 
-                // Fill in missing days
-                const result: DailyStat[] = [];
-                for (let i = 0; i < days; i++) {
-                    const d = new Date(startDate);
-                    d.setDate(startDate.getDate() + i);
-                    const dateKey = toLocalYMD(d);
-                    
-                    const entry = statsMap.get(dateKey) || { earned: 0, spent: 0 };
-                    result.push({
-                        date: dateKey,
-                        earned: entry.earned,
-                        spent: entry.spent
-                    });
+                const result = generateEmptyStats(startDate, days);
+                // Merge actual data
+                for (const stat of result) {
+                    if (statsMap.has(stat.date)) {
+                        const entry = statsMap.get(stat.date)!;
+                        stat.earned = entry.earned;
+                        stat.spent = entry.spent;
+                    }
                 }
 
                 resolve(result);
