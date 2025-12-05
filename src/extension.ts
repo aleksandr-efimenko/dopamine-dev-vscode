@@ -244,11 +244,14 @@ function spinSlotMachine(context: vscode.ExtensionContext, diffStats: DiffStats,
 }
 
 function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceConfiguration, magnitude: 'Small' | 'Medium' | 'Large' | 'Epic', diffStats: DiffStats, perfStats: PerformanceStats) {
-    const totalCharsChanged = diffStats.charsAdded;
-    const minChars = config.get<number>('thresholds.minChars', DEFAULT_MIN_CHARS);
+    const minCharsThreshold = config.get<number>('thresholds.minChars', DEFAULT_MIN_CHARS);
 
-    // 1. Threshold Check
-    if (totalCharsChanged < minChars) {
+    const totalAdded = diffStats.charsAdded;
+    const totalRemoved = diffStats.charsRemoved;
+    const totalModified = totalAdded + totalRemoved; // Total characters that were either added or removed
+
+    // Early exit for genuinely minor changes (both added and removed are below threshold)
+    if (totalModified < minCharsThreshold) {
         statusBarItem.backgroundColor = undefined;
         updateStatusBar(`$(code) Minor change - No reward.`);
         setTimeout(() => { updateStatusBar(); }, MINOR_CHANGE_TIMEOUT_MS);
@@ -264,7 +267,7 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
     let baseCoins = BASE_COINS;
     let bonuses: string[] = [];
 
-    // 2. Diff Magnitude Multiplier
+    // 2. Diff Magnitude Multiplier (only based on additions as per diffTracker.ts)
     let magnitudeMultiplier = 1;
     switch (magnitude) {
         case 'Medium':
@@ -342,17 +345,27 @@ function checkResult(context: vscode.ExtensionContext, config: vscode.WorkspaceC
 
         const reward = rewardManager.getRandomReward();
         if (reward) { rewardManager.redeemReward(reward); }
-    } else {
+    } else if (totalCoins > 0) {
         statusBarItem.backgroundColor = undefined;
+        updateStatusBar(`$(check) Saved +${totalCoins} Coins ${bonusText}`);
+        if (perfStats.errorsFixed >= 0) { // Only play sound if not introduced new errors
+            playSound(context, config.get<string>('sounds.coin'), 'pop.mp3', soundEnabled);
+        }
+    } else { // totalCoins is 0 or less
+        statusBarItem.backgroundColor = undefined;
+        const substantialOnlyRemoved = totalRemoved >= minCharsThreshold && totalAdded < minCharsThreshold;
 
-        if (totalCoins > 0) {
-            updateStatusBar(`$(check) Saved +${totalCoins} Coins ${bonusText}`);
-            // Only play coin sound if not buggy (errors didn't increase)
-            if (perfStats.errorsFixed >= 0) {
-                playSound(context, config.get<string>('sounds.coin'), 'pop.mp3', soundEnabled);
-            }
+        if (substantialOnlyRemoved) {
+            updateStatusBar(`$(trash) Significant deletion - No reward.`);
+        } else if (perfStats.errorsFixed < 0) {
+            // Introduced new errors
+            updateStatusBar(`$(warning) 0 Coins (Bugs Added)`);
+        } else if (!perfStats.isClean) {
+            // Existing errors, but didn't introduce new ones
+            updateStatusBar(`$(alert) 0 Coins (Existing Errors)`);
         } else {
-            updateStatusBar(`$(alert) Saved (0 Coins) ${bonusText}`);
+            // No coins earned for other reasons (e.g., small additions, even if totalModified is high)
+            updateStatusBar(`$(code) No reward.`);
         }
     }
 

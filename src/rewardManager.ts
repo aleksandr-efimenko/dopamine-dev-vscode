@@ -83,7 +83,7 @@ export class RewardManager {
         }
     }
 
-    private showQuoteNotification(reward: Reward) {
+    private async showQuoteNotification(reward: Reward) {
         const category = reward.content.toLowerCase();
         let filtered = allQuotes;
         if (category && category !== 'any') {
@@ -104,8 +104,18 @@ export class RewardManager {
             }
         }
 
-        // VS Code notifications have limited size; present the full quote inline.
-        vscode.window.showInformationMessage(`❝ ${quote.text}\n— ${quote.author}`);
+        const selection = await vscode.window.showInformationMessage(
+            `❝ ${quote.text}\n— ${quote.author}`,
+            "Spin Again (1 Coin)"
+        );
+
+        if (selection === "Spin Again (1 Coin)") {
+            if (this.wallet.spendCoins(1, "Respin Quote Notification")) {
+                this.showQuoteNotification(reward);
+            } else {
+                vscode.window.showErrorMessage("Not enough coins to spin again!");
+            }
+        }
     }
 
     private showQuoteMessage(reward: Reward) {

@@ -3,7 +3,7 @@
   "name": "dopamine-dev",
   "displayName": "Dopamine Dev",
   "description": "Gamify your coding experience with variable rewards, flow state tracking, and daily streaks.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/aleksandr-efimenko/dopamine-dev-vscode.git"
