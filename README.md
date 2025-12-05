@@ -9,8 +9,6 @@
 
 **Dopamine Dev** turns your VS Code editor into a variable reward system, giving you instant, satisfying feedback for your productivity.
 
-[**View on GitHub**](https://github.com/aleksandr-efimenko/dopamine-dev-vscode)
-
 Think of it as a slot machine for your productivity: write code, save your file, and watch the status bar spin!
 
 ## Why use Dopamine Dev?
@@ -25,7 +23,10 @@ Think of it as a slot machine for your productivity: write code, save your file,
 ## How It Works
 
 ### 1. The Core Loop
-Just code as usual! Every time you save a file (`Cmd+S` / `Ctrl+S`), the extension analyzes your changes and spins the slot machine in your status bar.
+Just code as usual. Every time you save a file (`Cmd+S` / `Ctrl+S`), the extension analyzes your changes (using diff) and spins the slot machine in your status bar.
+
+By default, sounds are disabled, but you can enable them in settings or add your own custom sounds!
+By default, only quotes notifications are shown on Jackpot, they are the less distracting option. You can change this in settings to show images, messages, or URLs instead.
 
 ### 2. Earning Coins
 Not all saves are created equal. The amount you earn depends on **Magnitude**, **Speed**, and **Quality**.
