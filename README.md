@@ -9,6 +9,8 @@
 
 **Dopamine Dev** turns your VS Code editor into a variable reward system, giving you instant, satisfying feedback for your productivity.
 
+[**View on GitHub**](https://github.com/aleksandr-efimenko/dopamine-dev-vscode)
+
 Think of it as a slot machine for your productivity: write code, save your file, and watch the status bar spin!
 
 ## Why use Dopamine Dev?

@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aleksandrefimenko/dopamine-dev.git"
+    "url": "https://github.com/aleksandr-efimenko/dopamine-dev-vscode.git"
   },
   "engines": {
     "vscode": "^1.106.1"
