@@ -41,8 +41,12 @@ suite('DiffTracker Tests', () => {
         }];
 
         diffTracker.onDidChange(createMockChangeEvent(doc, changes), bulkThreshold);
+        diffTracker.onDidChange(createMockChangeEvent(doc, changes), bulkThreshold);
+        diffTracker.onDidChange(createMockChangeEvent(doc, changes), bulkThreshold);
+        diffTracker.onDidChange(createMockChangeEvent(doc, changes), bulkThreshold);
+        diffTracker.onDidChange(createMockChangeEvent(doc, changes), bulkThreshold);
         const stats = diffTracker.getAndResetStats(doc);
-
+        
         assert.strictEqual(stats.charsAdded, 9); // "consta=1;" (spaces removed)
         assert.strictEqual(stats.typedCharsAdded, 9);
         assert.strictEqual(stats.bulkCharsAdded, 0);

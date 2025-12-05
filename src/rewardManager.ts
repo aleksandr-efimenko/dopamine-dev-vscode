@@ -24,6 +24,7 @@ export interface Reward {
     content: string;
     label: string;
     weight?: number; // Optional weight for individual reward items
+    enabled?: boolean; // Optional enabled flag
 }
 
 export class RewardManager {
@@ -42,8 +43,8 @@ export class RewardManager {
         const rewards = this.getConfigRewards();
         if (rewards.length === 0) { return undefined; }
 
-        // Filter out rewards with weight 0 or less, and add default weight if not specified
-        const activeRewards = rewards.filter(r => (r.weight ?? 1) > 0);
+        // Filter out rewards with weight 0 or less, or explicitly disabled
+        const activeRewards = rewards.filter(r => (r.weight ?? 1) > 0 && r.enabled !== false);
         if (activeRewards.length === 0) { return undefined; }
 
         // Calculate total weight
