@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://cdn.jsdelivr.net;">
+    <title>Dopamine Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
+            font-family: var(--vscode-font-family);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: var(--vscode-editor-foreground); margin: 0; font-weight: normal; font-size: 1.5em; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .nav-btn {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--vscode-font-family);
+            font-size: 14px;
+        }
+        .nav-btn:hover { background: var(--vscode-button-hoverBackground); }
+
+        .chart-container {
+            position: relative;
+            height: 60vh;
+            width: 90vw;
+            max-width: 800px;
+            background: var(--vscode-editor-widget-background);
+            border: 1px solid var(--vscode-widget-border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button id="prevBtn" class="nav-btn">← Previous</button>
+        <h1 id="periodLabel">{{MONTH_NAME}}</h1>
+        <button id="nextBtn" class="nav-btn">Next →</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        let currentYear = {{YEAR}};
+        let currentMonth = {{MONTH}};
+        let myChart;
+
+        // Get VS Code theme colors
+        const style = getComputedStyle(document.body);
+        const textColor = style.getPropertyValue('--vscode-editor-foreground').trim();
+        const gridColor = style.getPropertyValue('--vscode-widget-border').trim();
+        const earnedColor = style.getPropertyValue('--vscode-testing-iconPassed').trim() || '#4caf50';
+        const spentColor = style.getPropertyValue('--vscode-testing-iconFailed').trim() || '#f44336';
+        const fontFamily = style.getPropertyValue('--vscode-font-family').trim();
+
+        function initChart(labels, earnedData, spentData) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Earned',
+                            data: earnedData,
+                            backgroundColor: earnedColor,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        },
+                        {
+                            label: 'Spent',
+                            data: spentData,
+                            backgroundColor: spentColor,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 500,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: { family: fontFamily, size: 14 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: gridColor,
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(128, 128, 128, 0.1)',
+                                borderColor: gridColor
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: { family: fontFamily }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: textColor,
+                                font: { family: fontFamily }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial Render
+        initChart({{LABELS}}, {{EARNED_DATA}}, {{SPENT_DATA}});
+
+        // Navigation Handlers
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+            vscode.postMessage({ command: 'getStats', year: currentYear, month: currentMonth });
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            vscode.postMessage({ command: 'getStats', year: currentYear, month: currentMonth });
+        });
+
+        // Handle updates from Extension
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'updateStats') {
+                const stats = message.stats;
+                
+                // Update Label
+                const date = new Date(message.year, message.month - 1);
+                document.getElementById('periodLabel').innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                // Update Chart Data
+                const labels = stats.map(s => {
+                    const [y, m, d] = s.date.split('-').map(Number);
+                    return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric' });
+                });
+                
+                myChart.data.labels = labels;
+                myChart.data.datasets[0].data = stats.map(s => s.earned);
+                myChart.data.datasets[1].data = stats.map(s => s.spent);
+                myChart.update();
+            }
+        });
+    </script>
+</body>
+</html>

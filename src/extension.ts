@@ -125,7 +125,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Command: Show Analytics
     context.subscriptions.push(vscode.commands.registerCommand('dopamine-dev.showAnalytics', async () => {
-        const stats = await wallet.getDailyStats(7);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
 
         const panel = vscode.window.createWebviewPanel(
             'dopamineAnalytics',
@@ -134,7 +136,28 @@ export function activate(context: vscode.ExtensionContext) {
             { enableScripts: true }
         );
 
-        panel.webview.html = getAnalyticsWebviewContent(stats);
+        // Initial Data Load
+        const stats = await wallet.getMonthlyStats(currentYear, currentMonth);
+        panel.webview.html = getAnalyticsWebviewContent(context, stats, currentYear, currentMonth);
+
+        // Handle Message from Webview (Navigation)
+        panel.webview.onDidReceiveMessage(
+            async (message) => {
+                switch (message.command) {
+                    case 'getStats':
+                        const newStats = await wallet.getMonthlyStats(message.year, message.month);
+                        panel.webview.postMessage({ 
+                            command: 'updateStats', 
+                            stats: newStats,
+                            year: message.year,
+                            month: message.month
+                        });
+                        return;
+                }
+            },
+            undefined,
+            context.subscriptions
+        );
     }));
 
     // Event: On Change (Track Diff & Performance)
@@ -356,151 +379,31 @@ function playSound(context: vscode.ExtensionContext, customPath: string | undefi
     }
 }
 
-function getAnalyticsWebviewContent(stats: DailyStat[]) {
-    // 1. Check for empty data
-    const hasData = stats.length > 0 && stats.some(s => s.earned > 0 || s.spent > 0);
-    
-    if (!hasData) {
-        return `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Dopamine Analytics</title>
-            <style>
-                body {
-                    background-color: var(--vscode-editor-background);
-                    color: var(--vscode-editor-foreground);
-                    font-family: var(--vscode-font-family);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                }
-                h2 { color: var(--vscode-descriptionForeground); }
-            </style>
-        </head>
-        <body>
-            <h2>No transaction data available for the last 7 days.</h2>
-        </body>
-        </html>`;
-    }
+import * as fs from 'fs';
 
-    // 2. Chart Dimensions & Scaling
-    const width = 800;
-    const height = 400;
-    const padding = 60;
-    const chartWidth = width - (padding * 2);
-    const chartHeight = height - (padding * 2);
-    
-    // Find Max Value for Y-Axis Scaling
-    let maxVal = Math.max(...stats.map(s => Math.max(s.earned, s.spent)));
-    if (maxVal === 0) maxVal = 10;
-    // Add 10% buffer
-    maxVal = Math.ceil(maxVal * 1.1);
+function getAnalyticsWebviewContent(context: vscode.ExtensionContext, stats: DailyStat[], year: number, month: number) {
+    const htmlPath = path.join(context.extensionPath, 'media', 'analytics.html');
+    let html = fs.readFileSync(htmlPath, 'utf8');
 
-    const barWidth = (chartWidth / stats.length) / 2.5;
-    const groupWidth = chartWidth / stats.length;
-
-    // 3. Generate SVG Content
-    let svgContent = '';
-    
-    // Y-Axis & Grid lines (5 steps)
-    for (let i = 0; i <= 5; i++) {
-        const val = Math.round((maxVal / 5) * i);
-        const y = padding + chartHeight - ((val / maxVal) * chartHeight);
-        
-        // Grid line
-        svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--vscode-widget-border)" stroke-width="1" opacity="0.3" />`;
-        // Text
-        svgContent += `<text x="${padding - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="var(--vscode-descriptionForeground)">${val}</text>`;
-    }
-
-    // Bars & X-Axis Labels
-    stats.forEach((stat, index) => {
-        const x = padding + (index * groupWidth) + (groupWidth / 2);
-        
-        // Earned Bar
-        const earnedH = (stat.earned / maxVal) * chartHeight;
-        const earnedY = padding + chartHeight - earnedH;
-        svgContent += `<rect x="${x - barWidth - 2}" y="${earnedY}" width="${barWidth}" height="${earnedH}" fill="var(--vscode-testing-iconPassed)" opacity="0.9">
-            <title>Earned: ${stat.earned}</title>
-        </rect>`;
-
-        // Spent Bar
-        const spentH = (stat.spent / maxVal) * chartHeight;
-        const spentY = padding + chartHeight - spentH;
-        svgContent += `<rect x="${x + 2}" y="${spentY}" width="${barWidth}" height="${spentH}" fill="var(--vscode-testing-iconFailed)" opacity="0.9">
-             <title>Spent: ${stat.spent}</title>
-        </rect>`;
-
-        // Date Label
-        const [y, m, d] = stat.date.split('-').map(Number);
+    // Prepare data
+    const labels = stats.map(s => {
+        const [y, m, d] = s.date.split('-').map(Number);
         const dateObj = new Date(y, m - 1, d);
-        const label = dateObj.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
-        
-        svgContent += `<text x="${x}" y="${height - padding + 20}" text-anchor="middle" font-size="12" fill="var(--vscode-descriptionForeground)">${label}</text>`;
+        return dateObj.toLocaleDateString(undefined, { day: 'numeric' });
     });
+    const earnedData = stats.map(s => s.earned);
+    const spentData = stats.map(s => s.spent);
+    const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
 
-    // 4. Return Full HTML
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dopamine Analytics</title>
-        <style>
-            body {
-                background-color: var(--vscode-editor-background);
-                color: var(--vscode-editor-foreground);
-                font-family: var(--vscode-font-family);
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            h1 { color: var(--vscode-textLink-foreground); margin-bottom: 20px; }
-            .container {
-                width: 100%;
-                max-width: 900px;
-                background: var(--vscode-editor-background);
-                border-radius: 8px;
-                padding: 20px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            }
-            .legend {
-                display: flex;
-                justify-content: center;
-                gap: 30px;
-                margin-top: 10px;
-                margin-bottom: 20px;
-            }
-            .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-            .dot { width: 12px; height: 12px; border-radius: 2px; }
-        </style>
-    </head>
-    <body>
-        <h1>Coin Activity (Last 7 Days)</h1>
-        
-        <div class="container">
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="dot" style="background-color: var(--vscode-testing-iconPassed);"></div>
-                    <span>Earned</span>
-                </div>
-                <div class="legend-item">
-                    <div class="dot" style="background-color: var(--vscode-testing-iconFailed);"></div>
-                    <span>Spent</span>
-                </div>
-            </div>
+    // Replace Placeholders
+    html = html.replace('{{MONTH_NAME}}', monthName);
+    html = html.replace('{{YEAR}}', year.toString());
+    html = html.replace('{{MONTH}}', month.toString());
+    html = html.replace('{{LABELS}}', JSON.stringify(labels));
+    html = html.replace('{{EARNED_DATA}}', JSON.stringify(earnedData));
+    html = html.replace('{{SPENT_DATA}}', JSON.stringify(spentData));
 
-            <svg viewBox="0 0 ${width} ${height}" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
-                ${svgContent}
-            </svg>
-        </div>
-    </body>
-    </html>`;
+    return html;
 }
 
 // (webview playback removed)

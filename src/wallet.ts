@@ -53,14 +53,14 @@ export class Wallet {
     }
 
     public getLogPath(): string {
-        return this.logger.getLogPath();
+        return this.logger.getLogPathForCurrentMonth();
     }
 
     public async getRecentTransactions(limit: number = 50) {
         return this.logger.getRecentTransactions(limit);
     }
 
-    public async getDailyStats(days: number = 7) {
-        return this.logger.getDailyStats(days);
+    public async getMonthlyStats(year: number, month: number) {
+        return this.logger.getMonthlyStats(year, month);
     }
 }
