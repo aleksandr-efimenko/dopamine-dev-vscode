@@ -94,10 +94,6 @@ export class RewardManager {
     }
 
     private async showQuoteNotification(reward: Reward) {
-        if (this.isQuoteNotificationActive) {
-            return; // Prevent stacking: If one is open, ignore new requests
-        }
-
         const config = vscode.workspace.getConfiguration('dopamineDev');
         const enabledCategories = {
             humor: config.get<boolean>('quoteCategories.humor', true),
@@ -130,24 +126,18 @@ export class RewardManager {
             }
         }
 
-        this.spinCounter++;
-        const spinLabel = `Spin Again (1 Coin) #${this.spinCounter}`;
+        // Create a unique label using zero-width spaces to prevent VS Code from grouping/dismissing all notifications
+        // random length of zero-width spaces makes the string unique but visually identical
+        const uniqueSuffix = '\u200B'.repeat(Math.floor(Math.random() * 10) + 1); 
+        const spinLabel = `Spin Again (1 Coin)${uniqueSuffix}`;
 
-        this.isQuoteNotificationActive = true;
-        let selection: string | undefined;
-        
-        try {
-            selection = await vscode.window.showInformationMessage(
-                `❝ ${quote.text}\n— ${quote.author}`,
-                spinLabel
-            );
-        } finally {
-            this.isQuoteNotificationActive = false;
-        }
+        const selection = await vscode.window.showInformationMessage(
+            `❝ ${quote.text}\n— ${quote.author}`,
+            spinLabel
+        );
 
         if (selection === spinLabel) {
             if (this.wallet.spendCoins(1, "Respin Quote Notification")) {
-                // Recursive call is safe because we reset the flag in finally block above
                 this.showQuoteNotification(reward);
             } else {
                 vscode.window.showErrorMessage("Not enough coins to spin again!");
