@@ -3,13 +3,13 @@
   "name": "dopamine-dev",
   "displayName": "Dopamine Dev",
   "description": "Gamify your coding experience with variable rewards, flow state tracking, and daily streaks.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "repository": {
     "type": "git",
     "url": "https://github.com/aleksandr-efimenko/dopamine-dev-vscode.git"
   },
   "engines": {
-    "vscode": "^1.106.1"
+    "vscode": "^1.53.0"
   },
   "categories": [
     "Other"
@@ -180,6 +180,26 @@
               }
             }
           }
+        },
+        "dopamineDev.quoteCategories.humor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable humor quotes."
+        },
+        "dopamineDev.quoteCategories.programming": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable programming quotes."
+        },
+        "dopamineDev.quoteCategories.motivation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable motivation quotes."
+        },
+        "dopamineDev.quoteCategories.productivity": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable productivity quotes."
         },
         "dopamineDev.quoteDisplay": {
           "type": "string",

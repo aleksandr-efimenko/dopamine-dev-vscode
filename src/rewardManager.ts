@@ -30,6 +30,8 @@ export interface Reward {
 export class RewardManager {
     private recentQuotes: string[] = [];
     private readonly MAX_HISTORY = 5;
+    private spinCounter = 0;
+    private isQuoteNotificationActive = false;
 
     constructor(private wallet: Wallet) {}
 
@@ -40,6 +42,14 @@ export class RewardManager {
     }
 
     public getRandomReward(): Reward | undefined {
+        const config = vscode.workspace.getConfiguration('dopamineDev');
+        const enabledCategories = {
+            humor: config.get<boolean>('quoteCategories.humor', true),
+            programming: config.get<boolean>('quoteCategories.programming', true),
+            motivation: config.get<boolean>('quoteCategories.motivation', false),
+            productivity: config.get<boolean>('quoteCategories.productivity', false),
+        };
+
         const rewards = this.getConfigRewards();
         if (rewards.length === 0) { return undefined; }
 
@@ -84,12 +94,28 @@ export class RewardManager {
     }
 
     private async showQuoteNotification(reward: Reward) {
+        if (this.isQuoteNotificationActive) {
+            return; // Prevent stacking: If one is open, ignore new requests
+        }
+
+        const config = vscode.workspace.getConfiguration('dopamineDev');
+        const enabledCategories = {
+            humor: config.get<boolean>('quoteCategories.humor', true),
+            programming: config.get<boolean>('quoteCategories.programming', true),
+            motivation: config.get<boolean>('quoteCategories.motivation', false),
+            productivity: config.get<boolean>('quoteCategories.productivity', false),
+        };
+
         const category = reward.content.toLowerCase();
         let filtered = allQuotes;
         if (category && category !== 'any') {
-            filtered = allQuotes.filter(q => q.category === category);
+            filtered = allQuotes.filter(q => q.category === category && (enabledCategories as any)[q.category] !== false);
+        } else {
+            filtered = allQuotes.filter(q => (enabledCategories as any)[q.category] !== false);
         }
-        if (filtered.length === 0) { filtered = allQuotes; }
+        if (filtered.length === 0) { 
+            filtered = allQuotes; 
+        }
 
         const available = filtered.filter(q => !this.recentQuotes.includes(q.text));
         const candidates = available.length > 0 ? available : filtered;
@@ -104,13 +130,24 @@ export class RewardManager {
             }
         }
 
-        const selection = await vscode.window.showInformationMessage(
-            `❝ ${quote.text}\n— ${quote.author}`,
-            "Spin Again (1 Coin)"
-        );
+        this.spinCounter++;
+        const spinLabel = `Spin Again (1 Coin) #${this.spinCounter}`;
 
-        if (selection === "Spin Again (1 Coin)") {
+        this.isQuoteNotificationActive = true;
+        let selection: string | undefined;
+        
+        try {
+            selection = await vscode.window.showInformationMessage(
+                `❝ ${quote.text}\n— ${quote.author}`,
+                spinLabel
+            );
+        } finally {
+            this.isQuoteNotificationActive = false;
+        }
+
+        if (selection === spinLabel) {
             if (this.wallet.spendCoins(1, "Respin Quote Notification")) {
+                // Recursive call is safe because we reset the flag in finally block above
                 this.showQuoteNotification(reward);
             } else {
                 vscode.window.showErrorMessage("Not enough coins to spin again!");
@@ -127,10 +164,20 @@ export class RewardManager {
         );
 
         const getQuote = () => {
+            const config = vscode.workspace.getConfiguration('dopamineDev');
+            const enabledCategories = {
+                humor: config.get<boolean>('quoteCategories.humor', true),
+                programming: config.get<boolean>('quoteCategories.programming', true),
+                motivation: config.get<boolean>('quoteCategories.motivation', false),
+                productivity: config.get<boolean>('quoteCategories.productivity', false),
+            };
+
             const category = reward.content.toLowerCase();
             let filtered = allQuotes;
             if (category && category !== 'any') {
-                filtered = allQuotes.filter(q => q.category === category);
+                filtered = allQuotes.filter(q => q.category === category && (enabledCategories as any)[q.category] !== false);
+            } else {
+                filtered = allQuotes.filter(q => (enabledCategories as any)[q.category] !== false);
             }
             if (filtered.length === 0) { filtered = allQuotes; }
             
