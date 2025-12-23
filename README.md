@@ -52,6 +52,8 @@ Every spin has a random chance (default 10%) to trigger a **JACKPOT**.
 *   **Effect:** Instantly awards **+10 Coins** (multiplied by your current modifiers!).
 *   **Visuals:** Triggers a special sound effect and a visual reward (Quote, Image, or Message).
 
+<img src="media/jackpot-example.png" alt="Jackpot Example" width="500"/>
+
 ---
 
 ## Analytics & Economy
